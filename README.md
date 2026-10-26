@@ -49,7 +49,7 @@ npm run tauri build
 ## 原则
 
 - **v1 可完全离线**；AI 陪伴是后期可选能力（BYOK，可关）。
-- 素材请使用自有/可授权资源，勿直接使用其它商业农场游戏的官方素材。
+- 桌宠立绘使用 [Cute Girl sprites](https://opengameart.org/content/cute-girl-free-sprites)（pzUH，CC0）。不要把受版权保护的商业角色直接放进仓库。
 
 ## License
 

@@ -1,0 +1,6 @@
+Idle animation frames are from "Cute Girl - Free Sprites" by pzUH (gameart2d).
+License: CC0 1.0 (public domain).
+Source: https://opengameart.org/content/cute-girl-free-sprites
+
+This project does not ship copyrighted characters (for example commercial anime designs).
+Drop your own transparent PNG sequence into static/pets/idle/ if you want a different look.
