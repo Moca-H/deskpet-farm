@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount, tick } from "svelte";
   import { getCurrentWindow, LogicalSize } from "@tauri-apps/api/window";
+  import PetCharacter from "$lib/PetCharacter.svelte";
   import {
     feedPet,
     foodItems,
@@ -13,22 +14,32 @@
   } from "$lib/game";
 
   let state = $state<GameState | null>(null);
-  let message = $state("上方灰条拖动；点爪印摸摸");
   let nameInput = $state("");
   let err = $state("");
-  let loading = $state(true);
-  let petEl = $state<HTMLElement | null>(null);
+  let tip = $state("");
+  let menuOpen = $state(false);
+  let pressed = $state(false);
+  let flashHappy = $state(false);
+  let rootEl = $state<HTMLElement | null>(null);
+
+  function moodOf(s: GameState): "idle" | "happy" | "hungry" | "tired" {
+    if (flashHappy) return "happy";
+    if (s.pet.hunger < 25) return "hungry";
+    if (s.pet.energy < 25) return "tired";
+    if (s.pet.mood > 78) return "happy";
+    return "idle";
+  }
 
   async function fitWindow() {
     await tick();
-    if (!petEl) return;
+    if (!rootEl) return;
     try {
-      const r = petEl.getBoundingClientRect();
-      const w = Math.max(200, Math.ceil(r.width + 4));
-      const h = Math.max(120, Math.ceil(r.height + 4));
-      await getCurrentWindow().setSize(new LogicalSize(w, h));
+      const r = rootEl.getBoundingClientRect();
+      await getCurrentWindow().setSize(
+        new LogicalSize(Math.ceil(r.width + 2), Math.ceil(r.height + 2)),
+      );
     } catch {
-      /* ignore in browser */
+      /* ignore */
     }
   }
 
@@ -40,8 +51,6 @@
       await fitWindow();
     } catch (e) {
       err = String(e);
-    } finally {
-      loading = false;
     }
   }
 
@@ -51,24 +60,67 @@
     return () => clearInterval(t);
   });
 
+  let pressOrigin: { x: number; y: number } | null = null;
+
+  function onAvatarDown(e: PointerEvent) {
+    if (e.button !== 0 || menuOpen) return;
+    pressOrigin = { x: e.clientX, y: e.clientY };
+    pressed = true;
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+  }
+
+  async function onAvatarMove(e: PointerEvent) {
+    if (!pressOrigin) return;
+    const dist = Math.hypot(e.clientX - pressOrigin.x, e.clientY - pressOrigin.y);
+    if (dist < 7) return;
+    pressOrigin = null;
+    try {
+      await getCurrentWindow().startDragging();
+    } catch {
+      /* ignore */
+    }
+  }
+
+  function onAvatarUp() {
+    const wasClick = pressOrigin != null;
+    pressOrigin = null;
+    pressed = false;
+    if (wasClick) void onPat();
+  }
+
   async function onPat() {
+    if (!state) return;
+    pressed = true;
     err = "";
     try {
       const [next, msg] = await patPet();
       state = next;
-      message = msg;
+      tip = msg;
+      flashHappy = true;
+      setTimeout(() => (flashHappy = false), 900);
       await fitWindow();
     } catch (e) {
       err = String(e);
+    } finally {
+      setTimeout(() => (pressed = false), 120);
     }
   }
 
-  async function onFeed(itemId: string) {
+  async function onFeed() {
+    if (!state) return;
+    const foods = foodItems(state.inventory);
+    if (!foods.length) {
+      tip = "还没有收获的食物";
+      return;
+    }
     err = "";
     try {
-      const [next, msg] = await feedPet(itemId);
+      const [next, msg] = await feedPet(foods[0][0]);
       state = next;
-      message = msg;
+      tip = msg;
+      flashHappy = true;
+      setTimeout(() => (flashHappy = false), 900);
+      menuOpen = false;
       await fitWindow();
     } catch (e) {
       err = String(e);
@@ -83,192 +135,227 @@
       return;
     }
     try {
-      const next = await setPetName(name);
-      state = next;
-      nameInput = next.pet.name;
-      message = `以后就叫 ${next.pet.name}`;
+      state = await setPetName(name);
+      tip = `叫我 ${state.pet.name} 吧`;
       await fitWindow();
     } catch (e) {
       err = String(e);
     }
   }
-
-  async function drag(e: MouseEvent) {
-    e.preventDefault();
-    try {
-      await getCurrentWindow().startDragging();
-    } catch {
-      /* ignore */
-    }
-  }
-
-  function moodEmoji(s: GameState) {
-    if (s.pet.hunger < 25) return "🥺";
-    if (s.pet.energy < 20) return "😴";
-    if (s.pet.mood > 75) return "🥰";
-    return "🐾";
-  }
 </script>
 
-<main class="pet" bind:this={petEl}>
-  <div class="titlebar" onmousedown={drag} role="presentation">deskpet · 拖这里移动</div>
-
-  {#if loading && !state}
-    <p class="bubble">加载中…</p>
-  {:else if state}
-    <button class="sprite" type="button" title="摸摸" onclick={onPat}>
-      {moodEmoji(state)}
+<div class="root" bind:this={rootEl}>
+  {#if state}
+    <button
+      type="button"
+      class="avatar"
+      aria-label={`摸摸${state.pet.name}`}
+      onpointerdown={onAvatarDown}
+      onpointermove={onAvatarMove}
+      onpointerup={onAvatarUp}
+      onpointercancel={onAvatarUp}
+      oncontextmenu={(e) => {
+        e.preventDefault();
+        menuOpen = !menuOpen;
+        void fitWindow();
+      }}
+    >
+      <PetCharacter mood={moodOf(state)} {pressed} />
     </button>
-    <p class="name">{state.pet.name}</p>
-    <div class="bars">
-      <span>饱 {state.pet.hunger}</span>
-      <span>心 {state.pet.mood}</span>
-      <span>力 {state.pet.energy}</span>
-    </div>
-    <p class="bubble">{message}</p>
+
+    <p class="nametag">{state.pet.name}</p>
+
+    {#if tip}
+      <p class="tip" role="status">{tip}</p>
+    {/if}
 
     {#if !state.onboardingDone}
-      <div class="onboard">
+      <div class="glass rename">
         <input
           bind:value={nameInput}
           maxlength="12"
-          placeholder="给桌宠起名"
+          placeholder="给你的伙伴起名"
           onkeydown={(e) => e.key === "Enter" && void onRename()}
         />
-        <button type="button" onclick={() => void onRename()}>确认</button>
+        <button type="button" class="pill" onclick={() => void onRename()}>好</button>
       </div>
     {/if}
 
-    <div class="foods">
-      {#each foodItems(state.inventory) as [id, qty]}
-        <button type="button" onclick={() => void onFeed(id)}>
-          喂 {id.replace("food_", "")}×{qty}
-        </button>
-      {:else}
-        <small>背包没有食物，去农场收获吧</small>
-      {/each}
-    </div>
-
-    <div class="actions">
-      <button type="button" onclick={() => void openFarmWindow()}>农场</button>
-      <button type="button" onclick={() => void setClickThrough(true)}>穿透</button>
-      <button type="button" onclick={() => void setClickThrough(false)}>可点</button>
-    </div>
+    {#if menuOpen}
+      <div class="glass menu" role="menu">
+        <button type="button" role="menuitem" onclick={() => void openFarmWindow()}>农场</button>
+        <button type="button" role="menuitem" onclick={() => void onFeed()}>喂食</button>
+        <button
+          type="button"
+          role="menuitem"
+          onclick={() => {
+            void setClickThrough(true);
+            tip = "已穿透，托盘可恢复点击";
+            menuOpen = false;
+          }}>穿透</button
+        >
+        <button
+          type="button"
+          role="menuitem"
+          onclick={() => {
+            menuOpen = false;
+            void fitWindow();
+          }}>收起</button
+        >
+      </div>
+      <p class="hint">右键开关菜单 · 左键摸摸 · 拖拽移动</p>
+    {:else}
+      <p class="hint quiet">右键菜单</p>
+    {/if}
   {:else}
-    <p class="bubble">状态加载失败</p>
+    <p class="tip">唤醒中…</p>
   {/if}
 
   {#if err}
     <p class="err">{err}</p>
   {/if}
-</main>
+</div>
 
 <style>
   :global(html),
-  :global(body),
-  :global(#svelte) {
+  :global(body) {
     margin: 0;
     padding: 0;
     background: transparent !important;
     overflow: hidden;
-    font-family: "Segoe UI", system-ui, sans-serif;
   }
 
-  .pet {
-    display: inline-block;
-    width: 208px;
-    padding: 0 8px 12px;
-    text-align: center;
-    color: #1c1917;
-    user-select: none;
-    background: #fffaf0;
-    border: 1px solid #e7dcc8;
-    border-radius: 16px;
-    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.2);
-    box-sizing: border-box;
-  }
-
-  .titlebar {
-    margin: 0 -8px 8px;
-    padding: 8px 10px;
-    font-size: 11px;
-    font-weight: 600;
-    background: #efe2c9;
-    border-radius: 16px 16px 0 0;
-    cursor: grab;
-  }
-
-  .sprite {
-    width: 96px;
-    height: 96px;
-    border: none;
-    border-radius: 24px;
-    background: #f5e6c8;
-    font-size: 48px;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-  }
-
-  .name {
-    margin: 6px 0 0;
-    font-weight: 700;
-    font-size: 13px;
-  }
-
-  .bars {
+  .root {
     display: flex;
-    justify-content: center;
-    gap: 6px;
-    margin-top: 4px;
-    font-size: 10px;
-    opacity: 0.85;
+    flex-direction: column;
+    align-items: center;
+    width: max-content;
+    padding: 6px 8px 8px;
+    color: #1f2748;
+    font-family:
+      "Segoe UI",
+      "PingFang SC",
+      "Hiragino Sans GB",
+      system-ui,
+      sans-serif;
+    user-select: none;
   }
 
-  .bubble {
-    margin: 8px 0 0;
+  .avatar {
+    border: 0;
+    padding: 0;
+    background: transparent;
+    cursor: grab;
+    appearance: none;
+  }
+
+  .avatar:active {
+    cursor: grabbing;
+  }
+
+  .nametag {
+    margin: 2px 0 0;
+    font-size: 13px;
+    font-weight: 650;
+    letter-spacing: 0.02em;
+    color: #2a3558;
+    text-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.85),
+      0 6px 14px rgba(40, 50, 100, 0.2);
+  }
+
+  .tip {
+    margin: 6px 0 0;
+    max-width: 150px;
+    padding: 5px 9px;
+    border-radius: 999px;
+    font-size: 11px;
+    line-height: 1.35;
+    text-align: center;
+    color: #2a3558;
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(14px) saturate(160%);
+    -webkit-backdrop-filter: blur(14px) saturate(160%);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    box-shadow: 0 8px 20px rgba(40, 50, 100, 0.12);
+  }
+
+  .glass {
+    margin-top: 8px;
+    padding: 6px;
+    border-radius: 14px;
+    background: rgba(247, 249, 255, 0.62);
+    backdrop-filter: blur(18px) saturate(170%);
+    -webkit-backdrop-filter: blur(18px) saturate(170%);
+    border: 1px solid rgba(255, 255, 255, 0.65);
+    box-shadow: 0 10px 24px rgba(40, 50, 100, 0.14);
+  }
+
+  .rename {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .rename input {
+    width: 108px;
+    border: 0;
+    outline: none;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 999px;
+    padding: 5px 10px;
     font-size: 12px;
-    background: #fff;
-    border-radius: 8px;
-    padding: 6px 8px;
+    color: #1f2748;
+  }
+
+  .pill,
+  .menu button {
+    border: 0;
+    border-radius: 999px;
+    padding: 5px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #f7f9ff;
+    background: linear-gradient(180deg, #8fa4e8, #5a6fc4);
+    cursor: pointer;
+  }
+
+  .pill:active,
+  .menu button:active {
+    transform: scale(0.97);
+  }
+
+  .menu {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: center;
+    max-width: 168px;
+  }
+
+  .hint {
+    margin: 6px 0 0;
+    font-size: 10px;
+    color: rgba(42, 53, 88, 0.72);
+  }
+
+  .hint.quiet {
+    opacity: 0.55;
   }
 
   .err {
-    color: #b91c1c;
-    font-size: 11px;
-    margin: 8px 0 0;
-    word-break: break-all;
-    text-align: left;
-  }
-
-  .onboard,
-  .actions,
-  .foods {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-    justify-content: center;
-    margin-top: 8px;
-  }
-
-  input {
-    width: 100px;
-    border: 1px solid #c4b5a0;
-    border-radius: 6px;
-    padding: 2px 6px;
-    font-size: 12px;
-  }
-
-  button {
-    border: 1px solid #c4b5a0;
-    background: #fffaf0;
-    border-radius: 8px;
-    padding: 3px 8px;
-    cursor: pointer;
-    font-size: 11px;
-  }
-
-  small {
+    margin: 6px 0 0;
+    max-width: 160px;
     font-size: 10px;
-    opacity: 0.7;
+    color: #b42318;
+    word-break: break-all;
+  }
+
+  @media (prefers-reduced-transparency: reduce) {
+    .tip,
+    .glass {
+      background: #f7f9ff;
+      backdrop-filter: none;
+    }
   }
 </style>
