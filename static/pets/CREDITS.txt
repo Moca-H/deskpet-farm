@@ -1,6 +1,7 @@
-Idle animation frames are from "Cute Girl - Free Sprites" by pzUH (gameart2d).
-License: CC0 1.0 (public domain).
-Source: https://opengameart.org/content/cute-girl-free-sprites
+Character art: "Kuudere Visual Novel Sprite" by LisadiKaprio.
+License: Creative Commons Attribution 4.0 (CC-BY 4.0).
+Source: https://opengameart.org/content/kuudere-visual-novel-sprite
+https://creativecommons.org/licenses/by/4.0/
 
-This project does not ship copyrighted characters (for example commercial anime designs).
-Drop your own transparent PNG sequence into static/pets/idle/ if you want a different look.
+Used expressions (school uniform): idle, smile, annoyed, looking down.
+Attribution is required if you redistribute this project.

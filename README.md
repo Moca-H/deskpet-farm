@@ -49,7 +49,7 @@ npm run tauri build
 ## 原则
 
 - **v1 可完全离线**；AI 陪伴是后期可选能力（BYOK，可关）。
-- 桌宠立绘使用 [Cute Girl sprites](https://opengameart.org/content/cute-girl-free-sprites)（pzUH，CC0）。不要把受版权保护的商业角色直接放进仓库。
+- 桌宠立绘：[Kuudere Visual Novel Sprite](https://opengameart.org/content/kuudere-visual-novel-sprite)（LisadiKaprio，CC-BY 4.0，再分发需署名）。
 
 ## License
 
