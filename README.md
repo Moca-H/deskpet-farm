@@ -26,7 +26,8 @@
 - Node.js 20+
 - [Rust / rustup](https://www.rust-lang.org/tools/install)
 - Windows WebView2（一般已自带）
-- 打包还需要 [Visual Studio C++ Build Tools](https://tauri.app/start/prerequisites/)
+- **MSVC `link.exe`**：安装 [Visual Studio 2022 Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/)，勾选「使用 C++ 的桌面开发」  
+  （Tauri 在 Windows 上依赖它；详见 [prerequisites](https://tauri.app/start/prerequisites/)）
 
 ## 开发
 

@@ -2,13 +2,14 @@
 
 ## v0.1 / v1 — Offline loop (current focus)
 
-- [ ] Tauri dual windows + tray
-- [ ] Pet stats, tick, offline catch-up cap
-- [ ] Farm plant / water / harvest
-- [ ] Feed crops to pet; sell surplus
-- [ ] Plot unlock with coins / light conditions
-- [ ] Click-through toggle, save export/import
-- [ ] Windows installer on GitHub Releases
+- [x] Tauri dual windows + tray
+- [x] Pet stats, tick, offline catch-up cap (8h)
+- [x] Farm plant / water / harvest / wilt clear
+- [x] Feed crops to pet; sell surplus; buy seeds
+- [x] Plot unlock with coins (progressive)
+- [x] Click-through toggle (tray + pet buttons)
+- [ ] Save export/import UI (commands exist)
+- [ ] First-run polish + Windows installer Release
 
 ## v1.x — Content + optional AI preview
 
