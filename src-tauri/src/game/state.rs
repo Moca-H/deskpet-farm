@@ -56,6 +56,15 @@ pub struct GameState {
     pub last_tick_at: i64,
     pub total_harvests: u32,
     pub onboarding_done: bool,
+    /// Unix seconds when the pet may rest again. Missing in older saves.
+    #[serde(default)]
+    pub rest_ready_at: i64,
+    #[serde(default)]
+    pub total_feeds: u32,
+    #[serde(default)]
+    pub total_pats: u32,
+    #[serde(default)]
+    pub achievements: Vec<String>,
 }
 
 impl Default for GameState {
@@ -77,11 +86,11 @@ impl Default for GameState {
             player_id: Uuid::new_v4().to_string(),
             friends: vec![],
             pet: Pet {
-                name: "小爪".into(),
+                name: "大橘".into(),
                 hunger: 70,
                 mood: 70,
                 energy: 80,
-                skin_id: "default".into(),
+                skin_id: "orange-cat".into(),
             },
             farm: Farm { plots },
             inventory,
@@ -89,6 +98,10 @@ impl Default for GameState {
             last_tick_at: now,
             total_harvests: 0,
             onboarding_done: false,
+            rest_ready_at: 0,
+            total_feeds: 0,
+            total_pats: 0,
+            achievements: vec![],
         }
     }
 }

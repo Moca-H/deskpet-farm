@@ -16,3 +16,9 @@ src-tauri/gen/schemas/
 # IDE
 .idea/
 *.log
+
+# downloaded art scratch
+tmp-assets/
+
+# local debug helpers
+scripts/inspect_*.py

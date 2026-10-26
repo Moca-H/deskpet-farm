@@ -1,7 +1,3 @@
-Character art: "Kuudere Visual Novel Sprite" by LisadiKaprio.
-License: Creative Commons Attribution 4.0 (CC-BY 4.0).
-Source: https://opengameart.org/content/kuudere-visual-novel-sprite
-https://creativecommons.org/licenses/by/4.0/
-
-Used expressions (school uniform): idle, smile, annoyed, looking down.
-Attribution is required if you redistribute this project.
+Character art: custom cute orange-cat style pixel frames made for deskpet-farm.
+Path: static/pets/pixel/{idle,happy,hungry,tired}-1.png
+Released with this project under the same MIT license as the code.

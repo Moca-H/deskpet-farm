@@ -4,6 +4,7 @@ description = "Allow all deskpet-farm game and window helper commands"
 commands.allow = [
   "get_state",
   "list_crops",
+  "list_achievements",
   "cmd_set_pet_name",
   "cmd_pat",
   "cmd_feed",
@@ -14,8 +15,9 @@ commands.allow = [
   "cmd_buy_seed",
   "cmd_sell_item",
   "cmd_unlock_plot",
+  "cmd_rest",
+  "farm_sync",
   "open_farm_window",
-  "set_click_through",
   "export_save",
   "import_save",
   "save_file_path"

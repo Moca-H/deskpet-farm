@@ -8,14 +8,21 @@
 - [x] Feed crops to pet; sell surplus; buy seeds
 - [x] Plot unlock with coins (progressive)
 - [x] Click-through toggle (tray + pet buttons)
-- [ ] Save export/import UI (commands exist)
-- [ ] First-run polish + Windows installer Release
+- [x] Farm shows water / growth / harvest timing
+- [x] Rest recovers energy on a short cooldown
+- [x] Save export/import UI
+- [x] More crops (tomato / strawberry / corn)
+- [x] Simple achievements
+- [x] Mature-crop tray tooltip + pet bubble
+- [x] Farm one-tap plots (plant / water / harvest) + scene UI
+- [x] Farm art pass: Minecraft-inspired CC0 blocky look
+- [ ] Windows installer Release
+- [ ] Further farm art polish / alternate skins
 
 ## v1.x — Content + optional AI preview
 
-- [ ] More crops / skins / simple achievements
+- [ ] More skins / extra achievements
 - [ ] Optional BYOK chat companion (off by default; offline play stays complete)
-- [ ] Mature-crop tray toast (optional)
 
 ## v2 — Personalization + cloud (optional)
 

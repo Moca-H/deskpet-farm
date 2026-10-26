@@ -15,8 +15,8 @@
         "label": "pet",
         "title": "deskpet",
         "url": "/pet",
-        "width": 200,
-        "height": 420,
+        "width": 188,
+        "height": 228,
         "resizable": false,
         "decorations": false,
         "transparent": true,
@@ -32,8 +32,8 @@
         "label": "farm",
         "title": "deskpet farm",
         "url": "/farm",
-        "width": 960,
-        "height": 640,
+        "width": 1024,
+        "height": 780,
         "visible": true,
         "center": true
       }

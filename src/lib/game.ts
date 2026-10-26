@@ -31,6 +31,10 @@ export type GameState = {
   lastTickAt: number;
   totalHarvests: number;
   onboardingDone: boolean;
+  restReadyAt?: number;
+  totalFeeds?: number;
+  totalPats?: number;
+  achievements?: string[];
 };
 
 export type CropDef = {
@@ -46,8 +50,16 @@ export type CropDef = {
   energyRestore: number;
 };
 
+export type AchievementView = {
+  id: string;
+  name: string;
+  description: string;
+  unlocked: boolean;
+};
+
 export const getState = () => invoke<GameState>("get_state");
 export const listCrops = () => invoke<CropDef[]>("list_crops");
+export const listAchievements = () => invoke<AchievementView[]>("list_achievements");
 export const setPetName = (name: string) =>
   invoke<GameState>("cmd_set_pet_name", { name });
 export const patPet = () => invoke<[GameState, string]>("cmd_pat");
@@ -67,9 +79,31 @@ export const sellItem = (itemId: string, qty: number) =>
   invoke<GameState>("cmd_sell_item", { itemId, qty });
 export const unlockPlot = (plotIndex: number) =>
   invoke<GameState>("cmd_unlock_plot", { plotIndex });
+export const restPet = () => invoke<[GameState, string]>("cmd_rest");
+
+export type PlotPhase = "locked" | "empty" | "dry" | "growing" | "ready" | "wilted";
+
+export type PlotView = {
+  index: number;
+  unlocked: boolean;
+  phase: PlotPhase;
+  cropId: string | null;
+  cropName: string | null;
+  secondsLeft: number;
+  progress: number;
+  unlockCost: number | null;
+};
+
+export type FarmSync = {
+  state: GameState;
+  plots: PlotView[];
+  achievements: AchievementView[];
+};
+
+export const farmSync = () => invoke<FarmSync>("farm_sync");
+export const exportSave = (path: string) => invoke<void>("export_save", { path });
+export const importSave = (path: string) => invoke<GameState>("import_save", { path });
 export const openFarmWindow = () => invoke<void>("open_farm_window");
-export const setClickThrough = (enabled: boolean) =>
-  invoke<void>("set_click_through", { enabled });
 
 export function foodItems(inv: Record<string, number>) {
   return Object.entries(inv).filter(([id]) => id.startsWith("food_"));
@@ -85,4 +119,11 @@ export function cropIdFromSeed(itemId: string) {
 
 export function cropIdFromFood(itemId: string) {
   return itemId.replace(/^food_/, "");
+}
+
+export function fmtGrow(secs: number) {
+  if (secs < 60) return `${secs} 秒`;
+  const m = Math.floor(secs / 60);
+  const s = secs % 60;
+  return s ? `${m} 分 ${s} 秒` : `${m} 分`;
 }

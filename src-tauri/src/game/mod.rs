@@ -1,3 +1,4 @@
+pub mod achievements;
 pub mod catalog;
 pub mod rules;
 pub mod save;

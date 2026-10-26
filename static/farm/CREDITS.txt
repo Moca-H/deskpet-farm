@@ -1,0 +1,20 @@
+Farm art - Minecraft-inspired blocky look (CC0 / public domain)
+
+NO official Minecraft / Mojang textures were used.
+
+Kenney Voxel Pack (CC0)
+  https://kenney.nl/assets/voxel-pack
+  https://opengameart.org/content/voxel-pack
+  Used for: grass/dirt blocks, wood fence, wheat decor, sky/sun/clouds,
+  bowl/seed/wheat UI icons, procedural farmland base.
+
+Farming crops 16x16 by josehzz (CC0)
+  https://opengameart.org/content/farming-crops-16x16
+  Used for: on-field crop growth stages, seed tray and harvest icons.
+  (lettuce~cucumber, carrot~potato, apple~orange stand-ins)
+
+Simple Farm Tiles by ChikenwingJJA (CC0)
+  https://opengameart.org/content/simple-farm-tiles
+  Used for: watering-can and seed-bag UI glyphs.
+
+Credit optional. Rebuild: python scripts/pack-farm-art.py

@@ -18,7 +18,9 @@
 
 - [架构](docs/ARCHITECTURE.md)
 - [玩法与数值](docs/GAMEPLAY.md)
+- [美术与素材](docs/ART.md)
 - [路线图](docs/ROADMAP.md)
+- [开发日志](DEV_LOG.md)
 - [贡献](CONTRIBUTING.md)
 
 ## 前置
@@ -38,8 +40,6 @@ npm run tauri dev
 
 `npm run tauri` 已通过 `scripts/run-tauri.mjs` 自动把 `%USERPROFILE%\.cargo\bin` 加进 PATH。若仍报找不到 cargo，关掉终端重开，或运行 `.\dev.cmd`。
 
-启动后桌宠**默认可点击**；需要不挡鼠标时再用托盘「点击穿透」。
-
 打包：
 
 ```bash
@@ -49,7 +49,16 @@ npm run tauri build
 ## 原则
 
 - **v1 可完全离线**；AI 陪伴是后期可选能力（BYOK，可关）。
-- 桌宠立绘：[Kuudere Visual Novel Sprite](https://opengameart.org/content/kuudere-visual-novel-sprite)（LisadiKaprio，CC-BY 4.0，再分发需署名）。
+- 桌宠：本仓库 MIT 的橘猫像素帧（`static/pets/pixel`）。
+- 农场美术：仿 Minecraft **方块风**，仅使用 CC0 素材（**不含**官方 MC 贴图）。详见 [docs/ART.md](docs/ART.md)。
+
+### 重建农场贴图
+
+源 zip 解压到 `tmp-assets/`（已忽略）后：
+
+```bash
+python scripts/pack-farm-art.py
+```
 
 ## License
 
