@@ -25,16 +25,27 @@
   let selectedPlot = $state(0);
   let log = $state("欢迎来到农场");
   let err = $state("");
+  let bootErr = $state("");
 
   async function refresh() {
     state = await getState();
   }
 
-  onMount(async () => {
-    crops = await listCrops();
-    if (crops[0]) selectedCrop = crops[0].id;
-    await refresh();
-    const t = setInterval(() => void refresh(), 3000);
+  onMount(() => {
+    void (async () => {
+      try {
+        crops = await listCrops();
+        if (crops[0]) selectedCrop = crops[0].id;
+        await refresh();
+      } catch (e) {
+        bootErr = String(e);
+      }
+    })();
+    const t = setInterval(() => {
+      void refresh().catch((e) => {
+        err = String(e);
+      });
+    }, 3000);
     return () => clearInterval(t);
   });
 
@@ -182,6 +193,9 @@
     </aside>
   {:else}
     <p>加载中…</p>
+    {#if bootErr}
+      <p class="err">{bootErr}</p>
+    {/if}
   {/if}
 </main>
 

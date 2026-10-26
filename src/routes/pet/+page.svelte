@@ -13,13 +13,21 @@
   } from "$lib/game";
 
   let state = $state<GameState | null>(null);
-  let message = $state("托盘可切换点击穿透");
+  let message = $state("拖标题栏可移动；点爪印摸摸");
   let nameInput = $state("");
   let err = $state("");
+  let loading = $state(true);
 
   async function refresh() {
-    state = await getState();
-    if (!nameInput && state) nameInput = state.pet.name;
+    try {
+      state = await getState();
+      if (!nameInput && state) nameInput = state.pet.name;
+      err = "";
+    } catch (e) {
+      err = String(e);
+    } finally {
+      loading = false;
+    }
   }
 
   onMount(() => {
@@ -60,12 +68,11 @@
     }
   }
 
-  async function drag(e: MouseEvent) {
-    if (e.buttons !== 1) return;
+  async function drag() {
     try {
       await getCurrentWindow().startDragging();
     } catch {
-      /* ignore in browser */
+      /* ignore */
     }
   }
 
@@ -77,8 +84,12 @@
   }
 </script>
 
-<main class="pet" onmousedown={drag}>
-  {#if state}
+<main class="pet">
+  <div class="titlebar" onmousedown={drag} role="presentation">deskpet · 按住拖动</div>
+
+  {#if loading && !state}
+    <p class="bubble">加载中…</p>
+  {:else if state}
     <button class="sprite" type="button" title="摸摸" onclick={onPat}>
       {moodEmoji(state)}
     </button>
@@ -89,9 +100,6 @@
       <span>力 {state.pet.energy}</span>
     </div>
     <p class="bubble">{message}</p>
-    {#if err}
-      <p class="err">{err}</p>
-    {/if}
 
     {#if !state.onboardingDone}
       <div class="onboard">
@@ -102,7 +110,9 @@
 
     <div class="foods">
       {#each foodItems(state.inventory) as [id, qty]}
-        <button type="button" onclick={() => onFeed(id)}>喂 {id.replace("food_", "")}×{qty}</button>
+        <button type="button" onclick={() => onFeed(id)}>
+          喂 {id.replace("food_", "")}×{qty}
+        </button>
       {:else}
         <small>背包没有食物，去农场收获吧</small>
       {/each}
@@ -114,7 +124,11 @@
       <button type="button" onclick={() => setClickThrough(false)}>可点</button>
     </div>
   {:else}
-    <p class="bubble">加载中…</p>
+    <p class="bubble">状态加载失败</p>
+  {/if}
+
+  {#if err}
+    <p class="err">{err}</p>
   {/if}
 </main>
 
@@ -128,11 +142,27 @@
   }
 
   .pet {
-    width: 200px;
-    padding: 8px;
+    width: 204px;
+    margin: 4px;
+    padding: 0 8px 12px;
     text-align: center;
     color: #1c1917;
     user-select: none;
+    background: rgba(255, 250, 240, 0.98);
+    border: 1px solid #e7dcc8;
+    border-radius: 16px;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.2);
+    box-sizing: border-box;
+  }
+
+  .titlebar {
+    margin: 0 -8px 8px;
+    padding: 8px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    background: #efe2c9;
+    border-radius: 16px 16px 0 0;
+    cursor: grab;
   }
 
   .sprite {
@@ -142,8 +172,8 @@
     border-radius: 24px;
     background: #f5e6c8;
     font-size: 48px;
-    cursor: grab;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
   }
 
   .name {
@@ -172,7 +202,9 @@
   .err {
     color: #b91c1c;
     font-size: 11px;
-    margin: 4px 0 0;
+    margin: 8px 0 0;
+    word-break: break-all;
+    text-align: left;
   }
 
   .onboard,

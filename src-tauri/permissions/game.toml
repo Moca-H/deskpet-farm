@@ -1,0 +1,22 @@
+[[permission]]
+identifier = "allow-game"
+description = "Allow all deskpet-farm game and window helper commands"
+commands.allow = [
+  "get_state",
+  "list_crops",
+  "cmd_set_pet_name",
+  "cmd_pat",
+  "cmd_feed",
+  "cmd_plant",
+  "cmd_water",
+  "cmd_harvest",
+  "cmd_clear_wilted",
+  "cmd_buy_seed",
+  "cmd_sell_item",
+  "cmd_unlock_plot",
+  "open_farm_window",
+  "set_click_through",
+  "export_save",
+  "import_save",
+  "save_file_path"
+]

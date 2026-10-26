@@ -294,8 +294,11 @@ pub fn run() {
                 game: Mutex::new(state),
             });
             setup_tray(app.handle())?;
+            // Default: clickable. Use tray "点击穿透" when you need the pet to not block the mouse.
             if let Some(pet) = app.get_webview_window("pet") {
-                let _ = pet.set_ignore_cursor_events(true);
+                let _ = pet.set_ignore_cursor_events(false);
+                let _ = pet.show();
+                let _ = pet.set_focus();
             }
             Ok(())
         })

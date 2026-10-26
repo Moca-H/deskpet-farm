@@ -36,6 +36,10 @@ npm install
 npm run tauri dev
 ```
 
+`npm run tauri` 已通过 `scripts/run-tauri.mjs` 自动把 `%USERPROFILE%\.cargo\bin` 加进 PATH。若仍报找不到 cargo，关掉终端重开，或运行 `.\dev.cmd`。
+
+启动后桌宠**默认可点击**；需要不挡鼠标时再用托盘「点击穿透」。
+
 打包：
 
 ```bash
