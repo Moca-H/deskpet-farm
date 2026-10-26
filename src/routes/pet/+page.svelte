@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { onMount } from "svelte";
-  import { getCurrentWindow } from "@tauri-apps/api/window";
+  import { onMount, tick } from "svelte";
+  import { getCurrentWindow, LogicalSize } from "@tauri-apps/api/window";
   import {
     feedPet,
     foodItems,
@@ -13,16 +13,31 @@
   } from "$lib/game";
 
   let state = $state<GameState | null>(null);
-  let message = $state("拖标题栏可移动；点爪印摸摸");
+  let message = $state("上方灰条拖动；点爪印摸摸");
   let nameInput = $state("");
   let err = $state("");
   let loading = $state(true);
+  let petEl = $state<HTMLElement | null>(null);
+
+  async function fitWindow() {
+    await tick();
+    if (!petEl) return;
+    try {
+      const r = petEl.getBoundingClientRect();
+      const w = Math.max(200, Math.ceil(r.width + 4));
+      const h = Math.max(120, Math.ceil(r.height + 4));
+      await getCurrentWindow().setSize(new LogicalSize(w, h));
+    } catch {
+      /* ignore in browser */
+    }
+  }
 
   async function refresh() {
     try {
       state = await getState();
       if (!nameInput && state) nameInput = state.pet.name;
       err = "";
+      await fitWindow();
     } catch (e) {
       err = String(e);
     } finally {
@@ -42,6 +57,7 @@
       const [next, msg] = await patPet();
       state = next;
       message = msg;
+      await fitWindow();
     } catch (e) {
       err = String(e);
     }
@@ -53,6 +69,7 @@
       const [next, msg] = await feedPet(itemId);
       state = next;
       message = msg;
+      await fitWindow();
     } catch (e) {
       err = String(e);
     }
@@ -60,15 +77,24 @@
 
   async function onRename() {
     err = "";
+    const name = nameInput.trim();
+    if (!name) {
+      err = "名字不能为空";
+      return;
+    }
     try {
-      state = await setPetName(nameInput);
-      message = `以后就叫 ${state.pet.name}`;
+      const next = await setPetName(name);
+      state = next;
+      nameInput = next.pet.name;
+      message = `以后就叫 ${next.pet.name}`;
+      await fitWindow();
     } catch (e) {
       err = String(e);
     }
   }
 
-  async function drag() {
+  async function drag(e: MouseEvent) {
+    e.preventDefault();
     try {
       await getCurrentWindow().startDragging();
     } catch {
@@ -84,8 +110,8 @@
   }
 </script>
 
-<main class="pet">
-  <div class="titlebar" onmousedown={drag} role="presentation">deskpet · 按住拖动</div>
+<main class="pet" bind:this={petEl}>
+  <div class="titlebar" onmousedown={drag} role="presentation">deskpet · 拖这里移动</div>
 
   {#if loading && !state}
     <p class="bubble">加载中…</p>
@@ -103,14 +129,19 @@
 
     {#if !state.onboardingDone}
       <div class="onboard">
-        <input bind:value={nameInput} maxlength="12" placeholder="给桌宠起名" />
-        <button type="button" onclick={onRename}>确认</button>
+        <input
+          bind:value={nameInput}
+          maxlength="12"
+          placeholder="给桌宠起名"
+          onkeydown={(e) => e.key === "Enter" && void onRename()}
+        />
+        <button type="button" onclick={() => void onRename()}>确认</button>
       </div>
     {/if}
 
     <div class="foods">
       {#each foodItems(state.inventory) as [id, qty]}
-        <button type="button" onclick={() => onFeed(id)}>
+        <button type="button" onclick={() => void onFeed(id)}>
           喂 {id.replace("food_", "")}×{qty}
         </button>
       {:else}
@@ -119,9 +150,9 @@
     </div>
 
     <div class="actions">
-      <button type="button" onclick={() => openFarmWindow()}>农场</button>
-      <button type="button" onclick={() => setClickThrough(true)}>穿透</button>
-      <button type="button" onclick={() => setClickThrough(false)}>可点</button>
+      <button type="button" onclick={() => void openFarmWindow()}>农场</button>
+      <button type="button" onclick={() => void setClickThrough(true)}>穿透</button>
+      <button type="button" onclick={() => void setClickThrough(false)}>可点</button>
     </div>
   {:else}
     <p class="bubble">状态加载失败</p>
@@ -134,21 +165,23 @@
 
 <style>
   :global(html),
-  :global(body) {
+  :global(body),
+  :global(#svelte) {
     margin: 0;
-    background: transparent;
+    padding: 0;
+    background: transparent !important;
     overflow: hidden;
     font-family: "Segoe UI", system-ui, sans-serif;
   }
 
   .pet {
-    width: 204px;
-    margin: 4px;
+    display: inline-block;
+    width: 208px;
     padding: 0 8px 12px;
     text-align: center;
     color: #1c1917;
     user-select: none;
-    background: rgba(255, 250, 240, 0.98);
+    background: #fffaf0;
     border: 1px solid #e7dcc8;
     border-radius: 16px;
     box-shadow: 0 10px 28px rgba(0, 0, 0, 0.2);
@@ -194,7 +227,7 @@
   .bubble {
     margin: 8px 0 0;
     font-size: 12px;
-    background: rgba(255, 255, 255, 0.92);
+    background: #fff;
     border-radius: 8px;
     padding: 6px 8px;
   }

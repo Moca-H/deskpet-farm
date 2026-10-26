@@ -16,15 +16,17 @@
         "title": "deskpet",
         "url": "/pet",
         "width": 220,
-        "height": 360,
+        "height": 320,
         "resizable": false,
         "decorations": false,
         "transparent": true,
+        "shadow": false,
         "alwaysOnTop": true,
         "skipTaskbar": false,
         "center": true,
         "visible": true,
-        "focus": true
+        "focus": true,
+        "backgroundColor": "#00000000"
       },
       {
         "label": "farm",

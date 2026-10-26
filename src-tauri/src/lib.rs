@@ -297,6 +297,7 @@ pub fn run() {
             // Default: clickable. Use tray "点击穿透" when you need the pet to not block the mouse.
             if let Some(pet) = app.get_webview_window("pet") {
                 let _ = pet.set_ignore_cursor_events(false);
+                let _ = pet.set_background_color(Some(tauri::window::Color(0, 0, 0, 0)));
                 let _ = pet.show();
                 let _ = pet.set_focus();
             }
