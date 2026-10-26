@@ -1,5 +1,17 @@
 # 开发日志
 
+## [2026-10-26 17:20] - 农场 MC 方块风落地
+
+| 项目 | 内容 |
+|------|------|
+| 修改描述 | 农场场景/泥土/作物/UI 换成统一的 Minecraft 灵感方块像素风；地块改为 3×3 正方网格；木质 HUD；`shot-farm.ps1` 支持 PrintWindow 与最小化恢复 |
+| 影响范围 | `scripts/pack-farm-art.py`、`static/farm/**`、`src/routes/farm/+page.svelte`、`scripts/shot-farm.ps1` |
+| 问题原因（如适用） | Tiny Farm + Iso 混搭难看；用户要 MC 观感 |
+| 涉及文件 | 同上 + `CREDITS.txt`、`DEV_LOG.md` |
+| 备注 | **未使用**官方 Minecraft/Mojang 贴图。CC0：Kenney Voxel Pack、josehzz Farming crops 16x16、ChikenwingJJA Simple Farm Tiles |
+
+---
+
 ## [2026-10-26 16:55] - 功能迭代 + 农场视觉改版
 
 | 项目 | 内容 |

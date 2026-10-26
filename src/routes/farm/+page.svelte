@@ -403,40 +403,40 @@
     </div>
   {/if}
   </div>
+
+  <nav class="dock" aria-label="工具">
+    <div class="seed-tray" role="listbox" aria-label="种子">
+      {#each crops as c}
+        <button
+          type="button"
+          role="option"
+          class="seed"
+          class:on={selectedCrop === c.id}
+          aria-selected={selectedCrop === c.id}
+          onclick={() => (selectedCrop = c.id)}
+          title="{c.name} · {Math.round(c.growSecs / 60)}分钟"
+        >
+          <img class="ico" src={seedArt(c.id)} alt="" draggable="false" />
+          <span class="nm">{c.name}</span>
+          <span class="qty">×{seedCount(c.id)}</span>
+        </button>
+      {/each}
+    </div>
+    <div class="tools">
+      <button type="button" class:on={sheet === "shop"} onclick={() => (sheet = sheet === "shop" ? null : "shop")}
+        >商店</button
+      >
+      <button type="button" class:on={sheet === "bag"} onclick={() => (sheet = sheet === "bag" ? null : "bag")}
+        >仓库</button
+      >
+      <button type="button" class:on={sheet === "more"} onclick={() => (sheet = sheet === "more" ? null : "more")}
+        >更多</button
+      >
+    </div>
+  </nav>
   </div>
 
   {#if state}
-    <nav class="dock" aria-label="工具">
-      <div class="seed-tray" role="listbox" aria-label="种子">
-        {#each crops as c}
-          <button
-            type="button"
-            role="option"
-            class="seed"
-            class:on={selectedCrop === c.id}
-            aria-selected={selectedCrop === c.id}
-            onclick={() => (selectedCrop = c.id)}
-            title="{c.name} · {Math.round(c.growSecs / 60)}分钟"
-          >
-            <img class="ico" src={seedArt(c.id)} alt="" draggable="false" />
-            <span class="nm">{c.name}</span>
-            <span class="qty">×{seedCount(c.id)}</span>
-          </button>
-        {/each}
-      </div>
-      <div class="tools">
-        <button type="button" class:on={sheet === "shop"} onclick={() => (sheet = sheet === "shop" ? null : "shop")}
-          >商店</button
-        >
-        <button type="button" class:on={sheet === "bag"} onclick={() => (sheet = sheet === "bag" ? null : "bag")}
-          >仓库</button
-        >
-        <button type="button" class:on={sheet === "more"} onclick={() => (sheet = sheet === "more" ? null : "more")}
-          >更多</button
-        >
-      </div>
-    </nav>
-
     {#if sheet}
       <!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
       <div class="scrim" onclick={() => (sheet = null)}></div>
@@ -554,7 +554,7 @@
     position: relative;
     box-sizing: border-box;
     width: 100%;
-    height: 100vh;
+    height: 100%;
     overflow: hidden;
     background: #7ec850;
   }
@@ -582,17 +582,18 @@
     z-index: 1;
     box-sizing: border-box;
     height: 100%;
-    display: grid;
-    grid-template-rows: auto minmax(0, 1fr);
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
   }
 
   .stage {
     position: relative;
+    flex: 1 1 auto;
     min-height: 0;
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    padding-bottom: 0.45rem;
   }
 
   .hud {
@@ -667,7 +668,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 0.15rem 1rem 7.2rem;
+    padding: 0.15rem 1rem 0.35rem;
   }
 
   .plots-pane {
@@ -910,17 +911,18 @@
   }
 
   .dock {
-    position: fixed;
-    left: 50%;
-    bottom: 0.55rem;
-    z-index: 30;
-    transform: translateX(-50%);
+    position: relative;
+    z-index: 40;
+    flex: 0 0 auto;
     width: min(560px, 94%);
+    margin: 0.2rem auto 0.55rem;
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
     padding: 0.45rem 0.55rem 0.5rem;
     border-radius: 4px;
+    min-height: 100px;
     background: #c4a574;
     border: 4px solid #5a3d1e;
     box-shadow:
@@ -1002,7 +1004,7 @@
   .scrim {
     position: fixed;
     inset: 0;
-    z-index: 8;
+    z-index: 45;
     background: rgba(20, 30, 10, 0.35);
   }
 
@@ -1010,7 +1012,7 @@
     position: fixed;
     left: 50%;
     bottom: 0;
-    z-index: 9;
+    z-index: 50;
     transform: translateX(-50%);
     width: min(560px, 100%);
     max-height: 62vh;
@@ -1150,7 +1152,7 @@
     position: fixed;
     left: 50%;
     top: 4.2rem;
-    z-index: 10;
+    z-index: 60;
     transform: translateX(-50%);
     margin: 0;
     max-width: 80%;

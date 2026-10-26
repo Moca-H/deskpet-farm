@@ -38,7 +38,9 @@ $script:farm = [IntPtr]::Zero
 if ($script:farm -eq [IntPtr]::Zero) { throw "farm window missing" }
 
 [FarmShot]::AllowSetForegroundWindow(-1) | Out-Null
+# SW_RESTORE — farm often lands minimized off-screen during agent shots
 [FarmShot]::ShowWindow($script:farm, 9) | Out-Null
+Start-Sleep -Milliseconds 250
 # Temporarily topmost so CopyFromScreen is not occluded by Chrome/Cursor
 [FarmShot]::SetWindowPos($script:farm, [IntPtr]::new(-1), 40, 40, 1024, 780, 0x0040) | Out-Null
 Start-Sleep -Milliseconds 450
